@@ -1,47 +1,70 @@
-import React, { useContext } from "react";
-import { GlobalDataContext } from "../../context/context";
-import "photoswipe/dist/photoswipe.css";
-import { Gallery, Item } from "react-photoswipe-gallery";
+import React, { useState } from "react";
+import '../../assets/css/gallery.content.css';
+import { FaChevronCircleLeft, FaChevronCircleRight } from 'react-icons/fa';
+import { AiFillCloseCircle } from 'react-icons/ai';
 
-const GalleryComponent = (props) => {
-  const { rpdata } = useContext(GlobalDataContext);
+const GalleryComponent = ({ galleryImages }) => {
+
+  const [slideNumber, setSlideNumber] = useState(0)
+  const [openModal, setOpenModal] = useState(false)
+
+  const handleOpenModal = (index) => {
+      setSlideNumber(index)
+      setOpenModal(true)
+  }
+
+  // Close Modal
+  const handleCloseModal = () => {
+      setOpenModal(false)
+  }
+
+  // Previous Image
+  const prevSlide = () => {
+      slideNumber === 0
+          ? setSlideNumber(galleryImages.length - 1)
+          : setSlideNumber(slideNumber - 1)
+  }
+
+  // Next Image
+  const nextSlide = () => {
+      slideNumber + 1 === galleryImages.length
+          ? setSlideNumber(0)
+          : setSlideNumber(slideNumber + 1)
+  }
+
+
   return (
-    <>
-      <h2 className="text-center pt-[100px]">{rpdata?.labels?.general?.titleGallery}</h2>
-      <div className="py-[100px] flex justify-center">
-        <div className="gallery-content w-4/5 mx-auto">
-          <Gallery>
-            {
-              rpdata?.gallery?.length > 0 ? rpdata?.gallery?.map((item, index) => (
-                <Item
-                key={index}
-                  original={item}
-                  thumbnail={item}
-                  width="1024"
-                  height="550"
-                  padding="10px"
-                >
-                  {({ ref, open }) => <img ref={ref} onClick={open} src={item} alt="Not Found" />}
-                </Item>
-              ))
-              : rpdata?.stock?.map((item, index) => (
-                <Item
-                key={index}
-                  original={item}
-                  thumbnail={item}
-                  width="1024"
-                  height="550"
-                  padding="10px"
-                >
-                  {({ ref, open }) => <img ref={ref} onClick={open} src={item} alt="Not Found"/>}
-                </Item>
-              ))
-            }
-          </Gallery>
-        </div>
+      <div className='w-4/5 mx-auto'>
+          {openModal &&
+              <div className='sliderWrap'>
+                  <AiFillCloseCircle className='btnClose' onClick={handleCloseModal} />
+                  <FaChevronCircleLeft className='btnPrev' onClick={prevSlide} />
+                  <FaChevronCircleRight className='btnNext' onClick={nextSlide} />
+                  <div className='fullScreenImage'>
+                      <img src={galleryImages[slideNumber]} alt='images de gallery' />
+                  </div>
+              </div>
+          }
+          <div className='galleryWrap'>
+              {
+                  galleryImages && galleryImages.map((slide, index) => {
+                      return (
+                          <div
+                              className='single'
+                              key={index}
+                              onClick={() => handleOpenModal(index)}
+                          >
+                              <img
+                                  src={`${slide}`}
+                                  alt={`images-` + index}
+                              />
+                          </div>
+                      )
+                  })
+              }
+          </div>
       </div>
-    </>
-  );
-};
+  )
+}
 
-export default GalleryComponent;
+export default GalleryComponent
